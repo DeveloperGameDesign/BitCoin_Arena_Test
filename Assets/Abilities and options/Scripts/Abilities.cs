@@ -23,6 +23,7 @@ public class AbilityEffect : MonoBehaviour
     [SerializeField] private float stickTime = 1f;
     [SerializeField] private float softZoneTime = 1f;
     [SerializeField] private float bounceZoneTime = 1f;
+    [SerializeField] private float speedUpDuration = 3f;
 
     [Header("Speed booster")]
     [SerializeField] private float speedMultiplier = 2f;
@@ -34,22 +35,34 @@ public class AbilityEffect : MonoBehaviour
     [SerializeField] private float magneticForce = 10f;
     [SerializeField] private float magnetDuration = 2f;
 
+    [Header("Body")]
+    [SerializeField] private Collider2D pickupCollider;
+    [SerializeField]private Renderer renderers;
+
     // internal
     private Rigidbody2D _rb;
     private bool _isActivated;
     private float _magnetStartTime;
     private Vector2 _storedVelocity; // for restoring after sticky/soft/bounce
     private float _originalMaxSpeed;
+    private AbilityManager abilityManager;
 
     private void Start()
     {
+        puck = FindFirstObjectByType<PuckScript>();
+        abilityManager  = FindFirstObjectByType<AbilityManager>();
         if (puck == null)
         {
             Debug.LogError($"{nameof(AbilityEffect)} on '{gameObject.name}': puck reference is null.");
             Destroy(gameObject);
             return;
         }
-
+        if (abilityManager == null)
+        {
+            Debug.LogError($"{nameof(AbilityEffect)} on '{gameObject.name}': abilityManager reference is null.");
+            Destroy(gameObject);
+            return;
+        }
         _rb = puck.GetComponent<Rigidbody2D>();
         if (_rb == null)
         {
@@ -72,11 +85,11 @@ public class AbilityEffect : MonoBehaviour
     {
         if (_isActivated) return;
         _isActivated = true;
-
+        HidePickup();
         switch (abilityType)
         {
             case AbilityType.SpeedBoosterWall:
-                ApplySpeedBooster();
+                StartCoroutine(ApplySpeedBooster());
                 break;
             case AbilityType.InverserWall:
                 ApplyInverser();
@@ -99,62 +112,78 @@ public class AbilityEffect : MonoBehaviour
                 break;
         }
     }
+    private void HidePickup()
+    {
+        if (pickupCollider) pickupCollider.enabled = false;
 
+        if (renderers != null) renderers.enabled = false;
+    }
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        print(collision.gameObject.name);
+        if (collision.CompareTag("Player"))
+        {
+            Activate();
+        }
+    }
     #region Ability Implementations
 
-    private void ApplySpeedBooster()
+    private IEnumerator ApplySpeedBooster()
     {
         // This permanently modifies puck.maxSpeed. If you want a temporary boost,
         // use a coroutine and restore _originalMaxSpeed later.
+        var storeMaxSpeed = puck.maxSpeed;
         puck.maxSpeed = puck.maxSpeed * speedMultiplier;
+        yield return new WaitForSeconds(speedUpDuration);
+        puck.maxSpeed = storeMaxSpeed;
         Destroy(gameObject);
     }
 
     private void ApplyInverser()
     {
         // Reverse current velocity
-        _rb.velocity = -_rb.velocity;
+        _rb.linearVelocity = -_rb.linearVelocity;
         Destroy(gameObject);
     }
 
     private IEnumerator StickyWallRoutine()
     {
         // Only apply if puck is moving
-        _storedVelocity = _rb.velocity;
+        _storedVelocity = _rb.linearVelocity;
 
         if (_storedVelocity.sqrMagnitude > 0.0001f)
         {
-            _rb.velocity = Vector2.zero;
+            _rb.linearVelocity = Vector2.zero;
         }
         // Wait for stick time (use unscaled or scaled depending on your design)
         yield return new WaitForSeconds(stickTime);
 
         // restore previous velocity (if any)
-        _rb.velocity = _storedVelocity;
+        _rb.linearVelocity = _storedVelocity;
         Destroy(gameObject);
     }
 
     private IEnumerator SoftGroundRoutine()
     {
         // scale down velocity, but store original to restore reliably
-        _storedVelocity = _rb.velocity;
-        _rb.velocity = _rb.velocity * 0.5f;
+        _storedVelocity = _rb.linearVelocity;
+        _rb.linearVelocity = _rb.linearVelocity * 0.5f;
 
         yield return new WaitForSeconds(softZoneTime);
 
         // Restore stored velocity (avoid multiplying back)
-        _rb.velocity = _storedVelocity;
+        _rb.linearVelocity = _storedVelocity;
         Destroy(gameObject);
     }
 
     private IEnumerator BounceGroundRoutine()
     {
-        _storedVelocity = _rb.velocity;
-        _rb.velocity = _rb.velocity * 2f;
+        _storedVelocity = _rb.linearVelocity;
+        _rb.linearVelocity = _rb.linearVelocity * 2f;
 
         yield return new WaitForSeconds(bounceZoneTime);
 
-        _rb.velocity = _storedVelocity;
+        _rb.linearVelocity = _storedVelocity;
         Destroy(gameObject);
     }
 
@@ -205,6 +234,7 @@ public class AbilityEffect : MonoBehaviour
         // Optional: restore any modified permanent values if needed
         // e.g., if you changed puck.maxSpeed temporarily, restore it here.
         // For now we leave speed booster permanent (as original code did).
+        abilityManager.RemoveAbility(this);
     }
 
     #region Editor Helpers (optional)

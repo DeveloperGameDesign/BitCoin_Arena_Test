@@ -20,7 +20,7 @@ namespace MainScene
         // Collider for detecting collisions
         private Collider2D _playerCollider;
         // Sprite render for assigning a game sprite to
-        private SpriteRenderer _spriteRenderer;
+        //private SpriteRenderer _spriteRenderer;
         //Scorescript so it can be assigned and used within this class
         public ScoreScript scoreScript;
         // Sprite so one can be assigned to it
@@ -32,11 +32,11 @@ namespace MainScene
         private void Start()
         {
             // Accessing the SpriteRenderer that is attached to the Gameobject
-            _spriteRenderer = GetComponent<SpriteRenderer>();
+            //_spriteRenderer = GetComponent<SpriteRenderer>();
             // Assign the sprite passed when loading main scene
-            _spriteRenderer.sprite = StaticSpriteClass.CrossSceneInformation == null ? sprite : StaticSpriteClass.CrossSceneInformation;
+            //_spriteRenderer.sprite = StaticSpriteClass.CrossSceneInformation == null ? sprite : StaticSpriteClass.CrossSceneInformation;
             //Pass the name of the team onto the UI Manager so it can be displayed
-            scoreScript.SetPlayerTeamName(_spriteRenderer.sprite.name);
+            scoreScript.SetPlayerTeamName("Player");
             // Assigning Rigidbody to game object this script set on.
             _rb = GetComponent<Rigidbody2D>();
             //Accessing Collider2D attached to the Gameobject

@@ -58,7 +58,7 @@ namespace MainScene
             //reset was goal to false
             WasGoal = false;
             // Reset velocity and position to 0
-            _rb.velocity = _rb.position = new Vector2(0, 0);
+            _rb.linearVelocity = _rb.position = new Vector2(0, 0);
 
             // Spawn the puck on the AI side of the field
             // Else Spawn on the player side of the field
@@ -69,7 +69,7 @@ namespace MainScene
         public void ResetPuckInGame()
         {
             // Reset velocity and position to 0
-            _rb.velocity = _rb.position = new Vector2(0, 0);
+            _rb.linearVelocity = _rb.position = new Vector2(0, 0);
         }//End function
 
         public void RecenterPuck()
@@ -81,7 +81,7 @@ namespace MainScene
         private void FixedUpdate()
         {
             // Update the velocity:
-            _rb.velocity = Vector2.ClampMagnitude(_rb.velocity, maxSpeed);
+            _rb.linearVelocity = Vector2.ClampMagnitude(_rb.linearVelocity, maxSpeed);
         }// End function
     }// End class
 }// End namespace
