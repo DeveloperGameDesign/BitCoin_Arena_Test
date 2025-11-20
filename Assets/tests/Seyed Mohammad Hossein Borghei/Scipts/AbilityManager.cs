@@ -1,3 +1,4 @@
+using MainScene.Types;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,6 +9,8 @@ public class AbilityManager : MonoBehaviour
     [SerializeField] private float minTimeForSpawn = 3f;
     [SerializeField] private float maxTimeForSpawn = 7f;
     [SerializeField] private int maxAbilitiesInScene = 3;
+    [SerializeField] private Boundary abilityBoundery;
+    [SerializeField] private Transform boundaryHolder;
 
     private List<AbilityEffect> activeAbilities;
     private float currentTime=0f;
@@ -17,6 +20,10 @@ public class AbilityManager : MonoBehaviour
     {
         nextTimeToSpawn = NextTimeToSpawn();
         activeAbilities = new List<AbilityEffect>();
+        abilityBoundery = new Boundary(boundaryHolder.GetChild(0).position.y,
+               boundaryHolder.GetChild(1).position.y,
+               boundaryHolder.GetChild(2).position.x,
+               boundaryHolder.GetChild(3).position.x);
     }
 
     private void Update()
@@ -40,16 +47,7 @@ public class AbilityManager : MonoBehaviour
     }
     private void SpawnAbility()
     {
-        Camera cam = Camera.main;
-
-        Vector2 min = cam.ViewportToWorldPoint(new Vector2(0, 0));
-        Vector2 max = cam.ViewportToWorldPoint(new Vector2(1, 1));
-
-        float xPos = Random.Range(min.x, max.x);
-
-        float yPos = Random.Range(min.y, (min.y + max.y) / 2f);
-
-        Vector3 spawnPos = new Vector3(xPos, yPos,1);
+        Vector3 spawnPos = new Vector3(Random.Range(abilityBoundery.Left,abilityBoundery.Right), Random.Range(abilityBoundery.Down,abilityBoundery.Up),1);
 
         var newAbility = Instantiate(
             abilities[Random.Range(0, abilities.Length)],
