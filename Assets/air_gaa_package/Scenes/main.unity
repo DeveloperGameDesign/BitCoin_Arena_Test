@@ -2933,7 +2933,7 @@ GameObject:
   - component: {fileID: 667707085}
   - component: {fileID: 667707086}
   m_Layer: 5
-  m_Name: Square (1)
+  m_Name: around
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2998,7 +2998,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -1208079733417494003, guid: fde551a6421827f4f948773426021bf3, type: 3}
+  m_Sprite: {fileID: 1836735031549286278, guid: d8d1dd61470cfde469eba7abf05c9bae, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -6805,7 +6805,7 @@ GameObject:
   - component: {fileID: 1966549545}
   - component: {fileID: 1966549546}
   m_Layer: 5
-  m_Name: Square
+  m_Name: background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
